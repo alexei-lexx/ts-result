@@ -29,7 +29,7 @@
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
     "prepare": "husky",
-    "version": "npm run build && git add dist",
+    "version": "npm run build && node scripts/sync-readme-version.js && git add dist README.md",
     "postversion": "git push --follow-tags"
   },
   "peerDependencies": {
