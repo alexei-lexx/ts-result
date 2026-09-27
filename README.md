@@ -10,6 +10,12 @@ Includes matching vitest matchers.
 npm install github:alexei-lexx/ts-result
 ```
 
+Pin a tag instead of `main` for a stable install.
+
+```
+npm install github:alexei-lexx/ts-result#v1.2.3
+```
+
 ## Usage
 
 ```ts
@@ -39,10 +45,24 @@ const result = Result.fromThrowable(SyntaxError, () => JSON.parse(input));
 
 ## Vitest matchers
 
-Register the matchers (e.g. in your vitest setup file):
+Create a setup file that imports the matchers:
 
 ```ts
+// vitest.setup.ts
 import "ts-result/matchers";
+```
+
+Then register it in your Vitest config:
+
+```ts
+// vitest.config.ts
+import { defineConfig } from "vitest/config";
+
+export default defineConfig({
+  test: {
+    setupFiles: ["./vitest.setup.ts"],
+  },
+});
 ```
 
 Then use them in tests:
