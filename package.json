@@ -1,0 +1,55 @@
+{
+  "name": "ts-result",
+  "version": "0.1.0",
+  "description": "A lightweight Result<TData, TError> type for TypeScript, with vitest matchers",
+  "type": "module",
+  "license": "MIT",
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./matchers": {
+      "types": "./dist/matchers.d.ts",
+      "import": "./dist/matchers.js"
+    }
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "format": "npm run prettier:fix && npm run lint:fix",
+    "lint:fix": "eslint . --fix",
+    "lint": "eslint .",
+    "prettier:fix": "prettier --write .",
+    "prettier": "prettier --check .",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "prepare": "husky"
+  },
+  "peerDependencies": {
+    "vitest": ">=5.0.0"
+  },
+  "peerDependenciesMeta": {
+    "vitest": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@tsconfig/node24": "^24.0.5",
+    "@types/node": "^26.6.3",
+    "eslint": "^10.11.0",
+    "eslint-import-resolver-typescript": "^4.4.5",
+    "eslint-plugin-check-file": "^3.3.2",
+    "eslint-plugin-import-x": "^4.17.1",
+    "husky": "^9.1.7",
+    "prettier": "^3.9.9",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.70.1",
+    "vitest": "^5.0.1"
+  }
+}
