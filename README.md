@@ -13,7 +13,7 @@ npm install github:alexei-lexx/ts-result
 Pin a tag instead of `main` for a stable install.
 
 ```
-npm install github:alexei-lexx/ts-result#v1.2.3
+npm install github:alexei-lexx/ts-result#v0.1.2
 ```
 
 ## Usage
