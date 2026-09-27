@@ -28,7 +28,9 @@
     "prettier": "prettier --check .",
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
-    "prepare": "husky"
+    "prepare": "husky",
+    "version": "npm run build && git add dist",
+    "postversion": "git push --follow-tags"
   },
   "peerDependencies": {
     "vitest": ">=5.0.0"
