@@ -93,4 +93,4 @@ Applies to all generated text: code comments, commit messages, and markdown docs
 
 ## Git
 
-- Commits MUST NOT mention AI authorship — write on behalf of a human developer
+- MUST NOT mention AI authorship in commit messages — write on behalf of a human developer
