@@ -1,6 +1,6 @@
 {
   "name": "ts-result",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "description": "A lightweight Result<TData, TError> type for TypeScript, with vitest matchers",
   "type": "module",
   "license": "MIT",
