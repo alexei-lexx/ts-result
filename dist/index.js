@@ -7,6 +7,9 @@ class SuccessResult {
     map(callback) {
         return new SuccessResult(callback(this.data));
     }
+    async mapAsync(callback) {
+        return new SuccessResult(await callback(this.data));
+    }
     unwrapOrThrowAs(_throwableClass) {
         return this.data;
     }
@@ -18,6 +21,9 @@ class FailureResult {
         this.error = error;
     }
     map(_callback) {
+        return this;
+    }
+    async mapAsync(_callback) {
         return this;
     }
     unwrapOrThrowAs(throwableClass) {

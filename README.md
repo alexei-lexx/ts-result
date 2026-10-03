@@ -26,13 +26,27 @@ function parse(input: string): Result<number, string> {
   return Number.isNaN(value) ? Failure("not a number") : Success(value);
 }
 
-const result = parse("42").map((n) => n * 2);
+const result = parse("42");
 
 if (result.success) {
   console.log(result.data);
 } else {
   console.error(result.error);
 }
+```
+
+`map` transforms the data of a success.
+A failure passes through unchanged, and the callback is not called:
+
+```ts
+const result = parse("42").map((value) => value * 2);
+```
+
+`mapAsync` works like `map` with an async callback.
+It returns a `Promise` of the result:
+
+```ts
+const result = await parse("42").mapAsync(async (userId) => fetchUser(userId));
 ```
 
 `Result.fromThrowable` wraps a throwing function,
