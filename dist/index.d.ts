@@ -3,6 +3,7 @@ declare class SuccessResult<TData> {
     readonly success: true;
     constructor(data: TData);
     map<TNewData>(callback: (data: TData) => TNewData): SuccessResult<TNewData>;
+    mapAsync<TNewData>(callback: (data: TData) => Promise<TNewData>): Promise<SuccessResult<TNewData>>;
     unwrapOrThrowAs<TThrowable extends Error>(_throwableClass: new (error: never) => TThrowable): TData;
 }
 declare class FailureResult<TError> {
@@ -10,6 +11,7 @@ declare class FailureResult<TError> {
     readonly success: false;
     constructor(error: TError);
     map<TNewData>(_callback: (data: never) => TNewData): FailureResult<TError>;
+    mapAsync<TNewData>(_callback: (data: never) => Promise<TNewData>): Promise<FailureResult<TError>>;
     unwrapOrThrowAs<TThrowable extends Error>(throwableClass: new (error: TError) => TThrowable): never;
 }
 export type Result<TData, TError = string> = SuccessResult<TData> | FailureResult<TError>;

@@ -16,6 +16,26 @@ describe("Success", () => {
     });
   });
 
+  describe("mapAsync", () => {
+    it("transforms data with async callback", async () => {
+      // Act
+      const result = await Success({ id: 1 }).mapAsync(async (data) => data.id);
+
+      // Assert
+      expect(result).toBeSuccess(1);
+    });
+
+    it("fails when callback rejects", async () => {
+      // Arrange
+      const callback = () => Promise.reject(new TestError("boom"));
+
+      // Act & Assert
+      await expect(Success({ id: 1 }).mapAsync(callback)).rejects.toThrow(
+        TestError,
+      );
+    });
+  });
+
   describe("unwrapOrThrowAs", () => {
     it("returns data", () => {
       expect(Success({ id: 1 }).unwrapOrThrowAs(TestError)).toEqual({
@@ -37,6 +57,20 @@ describe("Failure", () => {
 
       // Act
       const result = Failure("not found").map(callback);
+
+      // Assert
+      expect(result).toBeFailure("not found");
+      expect(callback).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("mapAsync", () => {
+    it("returns failure unchanged without calling callback", async () => {
+      // Arrange
+      const callback = vi.fn();
+
+      // Act
+      const result = await Failure("not found").mapAsync(callback);
 
       // Assert
       expect(result).toBeFailure("not found");

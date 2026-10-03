@@ -7,6 +7,12 @@ class SuccessResult<TData> {
     return new SuccessResult(callback(this.data));
   }
 
+  async mapAsync<TNewData>(
+    callback: (data: TData) => Promise<TNewData>,
+  ): Promise<SuccessResult<TNewData>> {
+    return new SuccessResult(await callback(this.data));
+  }
+
   unwrapOrThrowAs<TThrowable extends Error>(
     _throwableClass: new (error: never) => TThrowable,
   ) {
@@ -20,6 +26,12 @@ class FailureResult<TError> {
   constructor(public readonly error: TError) {}
 
   map<TNewData>(_callback: (data: never) => TNewData): FailureResult<TError> {
+    return this;
+  }
+
+  async mapAsync<TNewData>(
+    _callback: (data: never) => Promise<TNewData>,
+  ): Promise<FailureResult<TError>> {
     return this;
   }
 
