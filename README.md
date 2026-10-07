@@ -65,7 +65,7 @@ The callback can return a `Promise` or a `ResultAsync`:
 
 ```ts
 const result = await parse("42").andThenAsync(async (userId) =>
-  findUser(userId),
+  fetchUser(userId),
 );
 ```
 

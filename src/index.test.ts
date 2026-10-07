@@ -60,6 +60,20 @@ describe("Success", () => {
         Success({ id: 1 }).andThen(() => Failure("not found")),
       ).toBeFailure("not found");
     });
+
+    // Dependency failures
+
+    it("fails when callback throws", () => {
+      // Arrange
+      const callback = () => {
+        throw new TestError("boom");
+      };
+
+      // Act & Assert
+      expect(() => Success({ id: 1 }).andThen(callback)).toThrow(
+        new TestError("boom"),
+      );
+    });
   });
 
   describe("andThenAsync", () => {
