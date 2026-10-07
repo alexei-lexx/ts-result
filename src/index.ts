@@ -10,9 +10,7 @@ class SuccessResult<TData, TError = never> {
   mapAsync<TNewData>(
     callback: (data: TData) => Promise<TNewData>,
   ): ResultAsync<TNewData, TError> {
-    return new ResultAsync(
-      callback(this.data).then((newData) => Success(newData)),
-    );
+    return new ResultAsync(callback(this.data).then(Success));
   }
 
   unwrapOrThrowAs<TThrowable extends Error>(

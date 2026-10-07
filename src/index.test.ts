@@ -25,6 +25,16 @@ describe("Success", () => {
       expect(result).toBeSuccess(1);
     });
 
+    it("allows map on async result", async () => {
+      // Act
+      const result = await Success({ id: 1 })
+        .mapAsync(async (data) => data.id)
+        .map((id) => id + 1);
+
+      // Assert
+      expect(result).toBeSuccess(2);
+    });
+
     it("fails when callback rejects", async () => {
       // Arrange
       const callback = () => Promise.reject(new TestError("boom"));

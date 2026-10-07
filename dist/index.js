@@ -8,7 +8,7 @@ class SuccessResult {
         return new SuccessResult(callback(this.data));
     }
     mapAsync(callback) {
-        return new ResultAsync(callback(this.data).then((newData) => Success(newData)));
+        return new ResultAsync(callback(this.data).then(Success));
     }
     unwrapOrThrowAs(_throwableClass) {
         return this.data;
