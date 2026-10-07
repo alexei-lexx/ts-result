@@ -1,23 +1,32 @@
-declare class SuccessResult<TData> {
+declare class SuccessResult<TData, TError = never> {
     readonly data: TData;
     readonly success: true;
     constructor(data: TData);
-    map<TNewData>(callback: (data: TData) => TNewData): SuccessResult<TNewData>;
-    mapAsync<TNewData>(callback: (data: TData) => Promise<TNewData>): Promise<SuccessResult<TNewData>>;
-    unwrapOrThrowAs<TThrowable extends Error>(_throwableClass: new (error: never) => TThrowable): TData;
+    map<TNewData>(callback: (data: TData) => TNewData): Result<TNewData, TError>;
+    mapAsync<TNewData>(callback: (data: TData) => Promise<TNewData>): ResultAsync<TNewData, TError>;
+    unwrapOrThrowAs<TThrowable extends Error>(_throwableClass: new (error: TError) => TThrowable): TData;
 }
-declare class FailureResult<TError> {
+declare class FailureResult<TData = never, TError = string> {
     readonly error: TError;
     readonly success: false;
     constructor(error: TError);
-    map<TNewData>(_callback: (data: never) => TNewData): FailureResult<TError>;
-    mapAsync<TNewData>(_callback: (data: never) => Promise<TNewData>): Promise<FailureResult<TError>>;
+    map<TNewData>(_callback: (data: TData) => TNewData): Result<TNewData, TError>;
+    mapAsync<TNewData>(_callback: (data: TData) => Promise<TNewData>): ResultAsync<TNewData, TError>;
     unwrapOrThrowAs<TThrowable extends Error>(throwableClass: new (error: TError) => TThrowable): never;
 }
-export type Result<TData, TError = string> = SuccessResult<TData> | FailureResult<TError>;
+export type Result<TData, TError = string> = SuccessResult<TData, TError> | FailureResult<TData, TError>;
 export declare function Success<TData>(data: TData): Result<TData, never>;
 export declare function Failure<TError = string>(error: TError): Result<never, TError>;
 export declare const Result: {
     fromThrowable<TData, TThrowable extends Error>(throwableClass: new (...args: never[]) => TThrowable, throwableFunc: () => TData): Result<TData, string>;
 };
+export declare class ResultAsync<TData, TError = string> implements PromiseLike<Result<TData, TError>> {
+    private readonly promise;
+    constructor(promise: Promise<Result<TData, TError>>);
+    then<TResult1 = Result<TData, TError>, TResult2 = never>(onFulfilled?: ((value: Result<TData, TError>) => TResult1 | PromiseLike<TResult1>) | null | undefined, onRejected?: ((reason: unknown) => TResult2 | PromiseLike<TResult2>) | null | undefined): Promise<TResult1 | TResult2>;
+    catch<TResult = never>(onRejected?: ((reason: unknown) => TResult | PromiseLike<TResult>) | null | undefined): Promise<Result<TData, TError> | TResult>;
+    finally(onFinally?: (() => void) | null | undefined): Promise<Result<TData, TError>>;
+    map<TNewData>(callback: (data: TData) => TNewData): ResultAsync<TNewData, TError>;
+    mapAsync<TNewData>(callback: (data: TData) => Promise<TNewData>): ResultAsync<TNewData, TError>;
+}
 export {};
