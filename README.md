@@ -51,6 +51,24 @@ const result = await parse("42")
   .map((user) => user.name);
 ```
 
+`andThen` chains a callback that returns its own `Result`.
+A failure from either step ends the chain:
+
+```ts
+const result = parse("42").andThen((value) =>
+  value > 0 ? Success(value) : Failure("not positive"),
+);
+```
+
+`andThenAsync` works like `andThen` with an async callback.
+The callback can return a `Promise` or a `ResultAsync`:
+
+```ts
+const result = await parse("42").andThenAsync(async (userId) =>
+  findUser(userId),
+);
+```
+
 `Result.fromThrowable` wraps a throwing function,
 catching a given error class and converting it into a `Failure`:
 

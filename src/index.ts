@@ -13,6 +13,18 @@ class SuccessResult<TData, TError = never> {
     return new ResultAsync(callback(this.data).then(Success));
   }
 
+  andThen<TNewData, TNewError>(
+    callback: (data: TData) => Result<TNewData, TNewError>,
+  ): Result<TNewData, TError | TNewError> {
+    return callback(this.data);
+  }
+
+  andThenAsync<TNewData, TNewError>(
+    callback: (data: TData) => PromiseLike<Result<TNewData, TNewError>>,
+  ): ResultAsync<TNewData, TError | TNewError> {
+    return new ResultAsync(Promise.resolve(callback(this.data)));
+  }
+
   unwrapOrThrowAs<TThrowable extends Error>(
     _throwableClass: new (error: TError) => TThrowable,
   ) {
@@ -34,6 +46,18 @@ class FailureResult<TData = never, TError = string> {
   mapAsync<TNewData>(
     _callback: (data: TData) => Promise<TNewData>,
   ): ResultAsync<TNewData, TError> {
+    return new ResultAsync(Promise.resolve(Failure(this.error)));
+  }
+
+  andThen<TNewData, TNewError>(
+    _callback: (data: TData) => Result<TNewData, TNewError>,
+  ): Result<TNewData, TError | TNewError> {
+    return Failure(this.error);
+  }
+
+  andThenAsync<TNewData, TNewError>(
+    _callback: (data: TData) => PromiseLike<Result<TNewData, TNewError>>,
+  ): ResultAsync<TNewData, TError | TNewError> {
     return new ResultAsync(Promise.resolve(Failure(this.error)));
   }
 
@@ -114,6 +138,22 @@ export class ResultAsync<TData, TError = string> implements PromiseLike<
   ): ResultAsync<TNewData, TError> {
     return new ResultAsync(
       this.promise.then((result) => result.mapAsync(callback)),
+    );
+  }
+
+  andThen<TNewData, TNewError>(
+    callback: (data: TData) => Result<TNewData, TNewError>,
+  ): ResultAsync<TNewData, TError | TNewError> {
+    return new ResultAsync(
+      this.promise.then((result) => result.andThen(callback)),
+    );
+  }
+
+  andThenAsync<TNewData, TNewError>(
+    callback: (data: TData) => PromiseLike<Result<TNewData, TNewError>>,
+  ): ResultAsync<TNewData, TError | TNewError> {
+    return new ResultAsync(
+      this.promise.then((result) => result.andThenAsync(callback)),
     );
   }
 }

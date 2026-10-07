@@ -4,6 +4,8 @@ declare class SuccessResult<TData, TError = never> {
     constructor(data: TData);
     map<TNewData>(callback: (data: TData) => TNewData): Result<TNewData, TError>;
     mapAsync<TNewData>(callback: (data: TData) => Promise<TNewData>): ResultAsync<TNewData, TError>;
+    andThen<TNewData, TNewError>(callback: (data: TData) => Result<TNewData, TNewError>): Result<TNewData, TError | TNewError>;
+    andThenAsync<TNewData, TNewError>(callback: (data: TData) => PromiseLike<Result<TNewData, TNewError>>): ResultAsync<TNewData, TError | TNewError>;
     unwrapOrThrowAs<TThrowable extends Error>(_throwableClass: new (error: TError) => TThrowable): TData;
 }
 declare class FailureResult<TData = never, TError = string> {
@@ -12,6 +14,8 @@ declare class FailureResult<TData = never, TError = string> {
     constructor(error: TError);
     map<TNewData>(_callback: (data: TData) => TNewData): Result<TNewData, TError>;
     mapAsync<TNewData>(_callback: (data: TData) => Promise<TNewData>): ResultAsync<TNewData, TError>;
+    andThen<TNewData, TNewError>(_callback: (data: TData) => Result<TNewData, TNewError>): Result<TNewData, TError | TNewError>;
+    andThenAsync<TNewData, TNewError>(_callback: (data: TData) => PromiseLike<Result<TNewData, TNewError>>): ResultAsync<TNewData, TError | TNewError>;
     unwrapOrThrowAs<TThrowable extends Error>(throwableClass: new (error: TError) => TThrowable): never;
 }
 export type Result<TData, TError = string> = SuccessResult<TData, TError> | FailureResult<TData, TError>;
@@ -28,5 +32,7 @@ export declare class ResultAsync<TData, TError = string> implements PromiseLike<
     finally(onFinally?: (() => void) | null | undefined): Promise<Result<TData, TError>>;
     map<TNewData>(callback: (data: TData) => TNewData): ResultAsync<TNewData, TError>;
     mapAsync<TNewData>(callback: (data: TData) => Promise<TNewData>): ResultAsync<TNewData, TError>;
+    andThen<TNewData, TNewError>(callback: (data: TData) => Result<TNewData, TNewError>): ResultAsync<TNewData, TError | TNewError>;
+    andThenAsync<TNewData, TNewError>(callback: (data: TData) => PromiseLike<Result<TNewData, TNewError>>): ResultAsync<TNewData, TError | TNewError>;
 }
 export {};

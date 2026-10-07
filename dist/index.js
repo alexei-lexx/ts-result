@@ -10,6 +10,12 @@ class SuccessResult {
     mapAsync(callback) {
         return new ResultAsync(callback(this.data).then(Success));
     }
+    andThen(callback) {
+        return callback(this.data);
+    }
+    andThenAsync(callback) {
+        return new ResultAsync(Promise.resolve(callback(this.data)));
+    }
     unwrapOrThrowAs(_throwableClass) {
         return this.data;
     }
@@ -24,6 +30,12 @@ class FailureResult {
         return Failure(this.error);
     }
     mapAsync(_callback) {
+        return new ResultAsync(Promise.resolve(Failure(this.error)));
+    }
+    andThen(_callback) {
+        return Failure(this.error);
+    }
+    andThenAsync(_callback) {
         return new ResultAsync(Promise.resolve(Failure(this.error)));
     }
     unwrapOrThrowAs(throwableClass) {
@@ -68,5 +80,11 @@ export class ResultAsync {
     }
     mapAsync(callback) {
         return new ResultAsync(this.promise.then((result) => result.mapAsync(callback)));
+    }
+    andThen(callback) {
+        return new ResultAsync(this.promise.then((result) => result.andThen(callback)));
+    }
+    andThenAsync(callback) {
+        return new ResultAsync(this.promise.then((result) => result.andThenAsync(callback)));
     }
 }
