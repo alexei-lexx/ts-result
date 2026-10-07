@@ -1,24 +1,24 @@
-declare class SuccessResult<TData, TError = never> {
+declare class SuccessResult<TData> {
     readonly data: TData;
     readonly success: true;
     constructor(data: TData);
-    map<TNewData>(callback: (data: TData) => TNewData): Result<TNewData, TError>;
-    mapAsync<TNewData>(callback: (data: TData) => Promise<TNewData>): ResultAsync<TNewData, TError>;
-    andThen<TNewData, TNewError>(callback: (data: TData) => Result<TNewData, TNewError>): Result<TNewData, TError | TNewError>;
-    andThenAsync<TNewData, TNewError>(callback: (data: TData) => PromiseLike<Result<TNewData, TNewError>>): ResultAsync<TNewData, TError | TNewError>;
-    unwrapOrThrowAs<TThrowable extends Error>(_throwableClass: new (error: TError) => TThrowable): TData;
+    map<TNewData>(callback: (data: TData) => TNewData): Result<TNewData, never>;
+    mapAsync<TNewData>(callback: (data: TData) => Promise<TNewData>): ResultAsync<TNewData, never>;
+    andThen<TNewData, TNewError>(callback: (data: TData) => Result<TNewData, TNewError>): Result<TNewData, TNewError>;
+    andThenAsync<TNewData, TNewError>(callback: (data: TData) => PromiseLike<Result<TNewData, TNewError>>): ResultAsync<TNewData, TNewError>;
+    unwrapOrThrowAs<TThrowable extends Error>(_throwableClass: new (error: never) => TThrowable): TData;
 }
-declare class FailureResult<TData = never, TError = string> {
+declare class FailureResult<TError = string> {
     readonly error: TError;
     readonly success: false;
     constructor(error: TError);
-    map<TNewData>(_callback: (data: TData) => TNewData): Result<TNewData, TError>;
-    mapAsync<TNewData>(_callback: (data: TData) => Promise<TNewData>): ResultAsync<TNewData, TError>;
-    andThen<TNewData, TNewError>(_callback: (data: TData) => Result<TNewData, TNewError>): Result<TNewData, TError | TNewError>;
-    andThenAsync<TNewData, TNewError>(_callback: (data: TData) => PromiseLike<Result<TNewData, TNewError>>): ResultAsync<TNewData, TError | TNewError>;
+    map<TNewData>(_callback: (data: never) => TNewData): Result<TNewData, TError>;
+    mapAsync<TNewData>(_callback: (data: never) => Promise<TNewData>): ResultAsync<TNewData, TError>;
+    andThen<TNewData, TNewError>(_callback: (data: never) => Result<TNewData, TNewError>): Result<TNewData, TError | TNewError>;
+    andThenAsync<TNewData, TNewError>(_callback: (data: never) => PromiseLike<Result<TNewData, TNewError>>): ResultAsync<TNewData, TError | TNewError>;
     unwrapOrThrowAs<TThrowable extends Error>(throwableClass: new (error: TError) => TThrowable): never;
 }
-export type Result<TData, TError = string> = SuccessResult<TData, TError> | FailureResult<TData, TError>;
+export type Result<TData, TError = string> = SuccessResult<TData> | FailureResult<TError>;
 export declare function Success<TData>(data: TData): Result<TData, never>;
 export declare function Failure<TError = string>(error: TError): Result<never, TError>;
 export declare const Result: {

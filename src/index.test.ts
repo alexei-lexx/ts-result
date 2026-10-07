@@ -147,6 +147,20 @@ describe("Failure", () => {
     expect(Failure("not found")).toBeFailure("not found");
   });
 
+  it("propagates to result with other data type", () => {
+    // Arrange
+    const boolResult: Result<boolean> = Failure("not found");
+
+    // Returns narrowed failure as is, checked by typecheck
+    const numResult = (): Result<number> => {
+      if (!boolResult.success) return boolResult;
+      return Success(100);
+    };
+
+    // Act & Assert
+    expect(numResult()).toBeFailure("not found");
+  });
+
   describe("map", () => {
     it("returns failure unchanged without calling callback", () => {
       // Arrange
