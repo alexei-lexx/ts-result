@@ -46,6 +46,93 @@ describe("Success", () => {
     });
   });
 
+  describe("andThen", () => {
+    // Happy path
+
+    it("returns callback success", () => {
+      expect(
+        Success({ id: 1 }).andThen((data) => Success(data.id)),
+      ).toBeSuccess(1);
+    });
+
+    it("returns callback failure", () => {
+      expect(
+        Success({ id: 1 }).andThen(() => Failure("not found")),
+      ).toBeFailure("not found");
+    });
+
+    // Dependency failures
+
+    it("fails when callback throws", () => {
+      // Arrange
+      const callback = () => {
+        throw new TestError("boom");
+      };
+
+      // Act & Assert
+      expect(() => Success({ id: 1 }).andThen(callback)).toThrow(
+        new TestError("boom"),
+      );
+    });
+  });
+
+  describe("andThenAsync", () => {
+    // Happy path
+
+    it("returns callback success", async () => {
+      // Act
+      const result = await Success({ id: 1 }).andThenAsync(async (data) =>
+        Success(data.id),
+      );
+
+      // Assert
+      expect(result).toBeSuccess(1);
+    });
+
+    it("accepts callback returning async result", async () => {
+      // Act
+      const result = await Success({ id: 1 }).andThenAsync(
+        (data) => new ResultAsync(Promise.resolve(Success(data.id + 1))),
+      );
+
+      // Assert
+      expect(result).toBeSuccess(2);
+    });
+
+    it("allows andThen on async result", async () => {
+      // Act
+      const result = await Success({ id: 1 })
+        .andThenAsync(async (data) => Success(data.id))
+        .andThen((id) => Success(id + 1));
+
+      // Assert
+      expect(result).toBeSuccess(2);
+    });
+
+    it("returns callback failure", async () => {
+      // Act
+      const result = await Success({ id: 1 }).andThenAsync(async () =>
+        Failure("not found"),
+      );
+
+      // Assert
+      expect(result).toBeFailure("not found");
+    });
+
+    // Dependency failures
+
+    it("fails when callback rejects", async () => {
+      // Arrange
+      const error = new Error("boom");
+      const callback = () => Promise.reject(error);
+
+      // Act & Assert
+      await expect(Success({ id: 1 }).andThenAsync(callback)).rejects.toBe(
+        error,
+      );
+    });
+  });
+
   describe("unwrapOrThrowAs", () => {
     it("returns data", () => {
       expect(Success({ id: 1 }).unwrapOrThrowAs(TestError)).toEqual({
@@ -81,6 +168,40 @@ describe("Failure", () => {
 
       // Act
       const result = await Failure("not found").mapAsync(callback);
+
+      // Assert
+      expect(result).toBeFailure("not found");
+      expect(callback).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("andThen", () => {
+    // Happy path
+
+    it("returns failure unchanged without calling callback", () => {
+      // Arrange
+      // Tracks calls to verify callback is skipped
+      const callback = vi.fn();
+
+      // Act
+      const result = Failure("not found").andThen(callback);
+
+      // Assert
+      expect(result).toBeFailure("not found");
+      expect(callback).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("andThenAsync", () => {
+    // Happy path
+
+    it("returns failure unchanged without calling callback", async () => {
+      // Arrange
+      // Tracks calls to verify callback is skipped
+      const callback = vi.fn();
+
+      // Act
+      const result = await Failure("not found").andThenAsync(callback);
 
       // Assert
       expect(result).toBeFailure("not found");
@@ -152,13 +273,13 @@ describe("ResultAsync", () => {
 
     it("resolves to failure result", async () => {
       // Arrange
-      const promise = Promise.resolve(Failure("Something went wrong"));
+      const promise = Promise.resolve(Failure("not found"));
 
       // Act
       const result = await new ResultAsync(promise);
 
       // Assert
-      expect(result).toBeFailure("Something went wrong");
+      expect(result).toBeFailure("not found");
     });
 
     // Dependency failures
@@ -294,11 +415,11 @@ describe("ResultAsync", () => {
 
       // Act
       const result = await new ResultAsync(
-        Promise.resolve(Failure("Something went wrong")),
+        Promise.resolve(Failure("not found")),
       ).map(callback);
 
       // Assert
-      expect(result).toBeFailure("Something went wrong");
+      expect(result).toBeFailure("not found");
       expect(callback).not.toHaveBeenCalled();
     });
 
@@ -349,11 +470,11 @@ describe("ResultAsync", () => {
 
       // Act
       const result = await new ResultAsync(
-        Promise.resolve(Failure("Something went wrong")),
+        Promise.resolve(Failure("not found")),
       ).mapAsync(callback);
 
       // Assert
-      expect(result).toBeFailure("Something went wrong");
+      expect(result).toBeFailure("not found");
       expect(callback).not.toHaveBeenCalled();
     });
 
@@ -367,6 +488,138 @@ describe("ResultAsync", () => {
 
       // Act & Assert
       await expect(resultAsync.mapAsync(callback)).rejects.toBe(error);
+    });
+  });
+
+  describe("andThen", () => {
+    // Happy path
+
+    it("returns callback success", async () => {
+      // Act
+      const result = await new ResultAsync(Promise.resolve(Success(3))).andThen(
+        (data) => Success(data ** 2),
+      );
+
+      // Assert
+      expect(result).toBeSuccess(9);
+    });
+
+    it("returns failure unchanged without calling callback", async () => {
+      // Arrange
+      // Tracks calls to verify callback is skipped
+      const callback = vi.fn();
+
+      // Act
+      const result = await new ResultAsync(
+        Promise.resolve(Failure("not found")),
+      ).andThen(callback);
+
+      // Assert
+      expect(result).toBeFailure("not found");
+      expect(callback).not.toHaveBeenCalled();
+    });
+
+    it("returns callback failure", async () => {
+      // Act
+      const result = await new ResultAsync(Promise.resolve(Success(3))).andThen(
+        () => Failure("not found"),
+      );
+
+      // Assert
+      expect(result).toBeFailure("not found");
+    });
+
+    // Dependency failures
+
+    it("fails without calling callback when promise rejects", async () => {
+      // Arrange
+      // Tracks calls to verify callback is skipped
+      const callback = vi.fn();
+      const error = new Error("boom");
+      const promise = Promise.reject(error);
+
+      // Act & Assert
+      await expect(new ResultAsync(promise).andThen(callback)).rejects.toBe(
+        error,
+      );
+      expect(callback).not.toHaveBeenCalled();
+    });
+
+    it("fails when callback throws", async () => {
+      // Arrange
+      const error = new Error("boom");
+      const callback = () => {
+        throw error;
+      };
+      const resultAsync = new ResultAsync(Promise.resolve(Success({ id: 1 })));
+
+      // Act & Assert
+      await expect(resultAsync.andThen(callback)).rejects.toBe(error);
+    });
+  });
+
+  describe("andThenAsync", () => {
+    // Happy path
+
+    it("returns callback success", async () => {
+      // Act
+      const result = await new ResultAsync(
+        Promise.resolve(Success(3)),
+      ).andThenAsync(async (data) => Success(data ** 2));
+
+      // Assert
+      expect(result).toBeSuccess(9);
+    });
+
+    it("returns failure unchanged without calling callback", async () => {
+      // Arrange
+      // Tracks calls to verify callback is skipped
+      const callback = vi.fn();
+
+      // Act
+      const result = await new ResultAsync(
+        Promise.resolve(Failure("not found")),
+      ).andThenAsync(callback);
+
+      // Assert
+      expect(result).toBeFailure("not found");
+      expect(callback).not.toHaveBeenCalled();
+    });
+
+    it("returns callback failure", async () => {
+      // Act
+      const result = await new ResultAsync(
+        Promise.resolve(Success(3)),
+      ).andThenAsync(async () => Failure("not found"));
+
+      // Assert
+      expect(result).toBeFailure("not found");
+    });
+
+    // Dependency failures
+
+    it("fails without calling callback when promise rejects", async () => {
+      // Arrange
+      // Tracks calls to verify callback is skipped
+      const callback = vi.fn();
+      const error = new Error("boom");
+      const promise = Promise.reject(error);
+
+      // Act & Assert
+      await expect(
+        new ResultAsync(promise).andThenAsync(callback),
+      ).rejects.toBe(error);
+      expect(callback).not.toHaveBeenCalled();
+    });
+
+    it("fails when callback rejects", async () => {
+      // Arrange
+      const error = new Error("boom");
+      const callback = () => Promise.reject(error);
+      const resultAsync = new ResultAsync(Promise.resolve(Success({ id: 1 })));
+
+      // Act & Assert
+      await expect(resultAsync.andThenAsync(callback)).rejects.toBe(error);
     });
   });
 });
