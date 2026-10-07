@@ -43,10 +43,12 @@ const result = parse("42").map((value) => value * 2);
 ```
 
 `mapAsync` works like `map` with an async callback.
-It returns a `Promise` of the result:
+It returns a `ResultAsync`, which you can `await` like a `Promise`:
 
 ```ts
-const result = await parse("42").mapAsync(async (userId) => fetchUser(userId));
+const result = await parse("42")
+  .mapAsync(async (userId) => fetchUser(userId))
+  .map((user) => user.name);
 ```
 
 `Result.fromThrowable` wraps a throwing function,
