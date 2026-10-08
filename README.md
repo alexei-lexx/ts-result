@@ -42,33 +42,6 @@ A failure passes through unchanged, and the callback is not called:
 const result = parse("42").map((value) => value * 2);
 ```
 
-`mapAsync` works like `map` with an async callback.
-It returns a `ResultAsync`, which you can `await` like a `Promise`:
-
-```ts
-const result = await parse("42")
-  .mapAsync(async (userId) => fetchUser(userId))
-  .map((user) => user.name);
-```
-
-`andThen` chains a callback that returns its own `Result`.
-A failure from either step ends the chain:
-
-```ts
-const result = parse("42").andThen((value) =>
-  value > 0 ? Success(value) : Failure("not positive"),
-);
-```
-
-`andThenAsync` works like `andThen` with an async callback.
-The callback can return a `Promise` or a `ResultAsync`:
-
-```ts
-const result = await parse("42").andThenAsync(async (userId) =>
-  fetchUser(userId),
-);
-```
-
 `Result.fromThrowable` wraps a throwing function,
 catching a given error class and converting it into a `Failure`:
 

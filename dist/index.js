@@ -7,15 +7,6 @@ class SuccessResult {
     map(callback) {
         return new SuccessResult(callback(this.data));
     }
-    mapAsync(callback) {
-        return new ResultAsync(callback(this.data).then(Success));
-    }
-    andThen(callback) {
-        return callback(this.data);
-    }
-    andThenAsync(callback) {
-        return new ResultAsync(Promise.resolve(callback(this.data)));
-    }
     unwrapOrThrowAs(_throwableClass) {
         return this.data;
     }
@@ -28,15 +19,6 @@ class FailureResult {
     }
     map(_callback) {
         return Failure(this.error);
-    }
-    mapAsync(_callback) {
-        return new ResultAsync(Promise.resolve(Failure(this.error)));
-    }
-    andThen(_callback) {
-        return Failure(this.error);
-    }
-    andThenAsync(_callback) {
-        return new ResultAsync(Promise.resolve(Failure(this.error)));
     }
     unwrapOrThrowAs(throwableClass) {
         throw new throwableClass(this.error);
@@ -61,30 +43,3 @@ export const Result = {
         }
     },
 };
-export class ResultAsync {
-    promise;
-    constructor(promise) {
-        this.promise = promise;
-    }
-    then(onFulfilled, onRejected) {
-        return this.promise.then(onFulfilled, onRejected);
-    }
-    catch(onRejected) {
-        return this.promise.catch(onRejected);
-    }
-    finally(onFinally) {
-        return this.promise.finally(onFinally);
-    }
-    map(callback) {
-        return new ResultAsync(this.promise.then((result) => result.map(callback)));
-    }
-    mapAsync(callback) {
-        return new ResultAsync(this.promise.then((result) => result.mapAsync(callback)));
-    }
-    andThen(callback) {
-        return new ResultAsync(this.promise.then((result) => result.andThen(callback)));
-    }
-    andThenAsync(callback) {
-        return new ResultAsync(this.promise.then((result) => result.andThenAsync(callback)));
-    }
-}
